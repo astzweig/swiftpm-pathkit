@@ -1,10 +1,18 @@
-# Path.swift ![badge-platforms][] ![badge-languages][] [![badge-ci][]][travis] [![badge-jazzy][]][docs] [![badge-codecov][]][codecov] [![badge-version][]][cocoapods]
+# Swift PathKit ![badge-platforms][] ![badge-languages][]
 
 A file-system pathing library focused on developer experience and robust end
 results.
 
+> [!NOTE]
+> This repository is a fork of [mxcl/Path.swift][] by [mxcl](), which due to inactivity does not receive new features.
+
+[mxcl/Path.swift]: https://github.com/mxcl/Path.swift
+[mxcl]: https://github.com/mxcl
+
+## Examples
+
 ```swift
-import Path
+import PathKit
 
 // convenient static members
 let home = Path.home
@@ -36,31 +44,23 @@ print(foo.isFile)  // => true
 // may not have realized existed.
 
 // we support dynamic-member-syntax when joining named static members, eg:
-let prefs = Path.home.Library.Preferences  // => /Users/mxcl/Library/Preferences
+let prefs = Path.home.Library.Preferences  // => /Users/someuser/Library/Preferences
 
 // a practical example: installing a helper executable
 try Bundle.resources.helper.copy(into: Path.root.usr.local.bin).chmod(0o500)
 ```
 
-We emphasize safety and correctness, just like Swift, and also (again like
+This repository emphasizes safety and correctness, just like Swift, and also (again like
 Swift), we provide a thoughtful and comprehensive (yet concise) API.
-
-# Sponsor @mxcl
-
-Hi, I’m Max Howell and I have written a lot of open source software—generally
-a good deal of my free time 👨🏻‍💻. Sponsorship helps me justify creating new open
-source and maintaining it. Thank you.
-
-[Sponsor @mxcl].
 
 # Handbook
 
-Our [online API documentation][docs] covers 100% of our public API and is
+The [online API documentation][docs] covers 100% of the public API and is
 automatically updated for new releases.
 
 ## Codable
 
-We support `Codable` as you would expect:
+`Path` conforms to `Codable`:
 
 ```swift
 try JSONEncoder().encode([Path.home, Path.home/"foo"])
@@ -68,12 +68,12 @@ try JSONEncoder().encode([Path.home, Path.home/"foo"])
 
 ```json
 [
-    "/Users/mxcl",
-    "/Users/mxcl/foo",
+    "/Users/someuser",
+    "/Users/someuser/foo",
 ]
 ```
 
-Though we recommend encoding *relative* paths‡:
+`Paths` can be encoded as *relative* paths‡:
 
 ```swift
 let encoder = JSONEncoder()
@@ -105,17 +105,14 @@ try decoder.decode(from: data)  // would throw if `.relativePath` not set
 
 ## Dynamic members
 
-We support `@dynamicMemberLookup`:
+`Path` supports `@dynamicMemberLookup`:
 
 ```swift
 let ls = Path.root.usr.bin.ls  // => /usr/bin/ls
 ```
 
-We only provide this for “starting” function, eg. `Path.home` or `Bundle.path`.
-This is because we found in practice it was easy to write incorrect code, since
-everything would compile if we allowed arbituary variables to take *any* named
-property as valid syntax. What we have is what you want most of the time but
-much less (potentially) dangerous (at runtime).
+This is provided for “starting” functions only, eg. `Path.home` or `Bundle.path`.
+Allowing arbitrary property access only in special cases is a precaution.
 
 ### Pathish
 
@@ -149,7 +146,7 @@ This is explicit, not hiding anything that code-review may miss and preventing
 common bugs like accidentally creating `Path` objects from strings you did not
 expect to be relative.
 
-Our initializer is nameless to be consistent with the equivalent operation for
+The initializer is nameless to be consistent with the equivalent operation for
 converting strings to `Int`, `Float` etc. in the standard library.
 
 ## Initializing from known strings
@@ -191,8 +188,7 @@ try Bundle.main.resources.join("foo").copy(to: .home)
 
 ## Directory listings
 
-We provide `ls()`, called because it behaves like the Terminal `ls` function,
-the name thus implies its behavior, ie. that it is not recursive and doesn’t
+`Path` provides `ls()` to list files. Like `ls` it is not recursive and doesn’t
 list hidden files.
 
 ```swift
@@ -223,7 +219,7 @@ let includingHiddenFiles = Path.home.ls(.a)
 fails to list the directory. The rationale for this is weak, please open a
 ticket for discussion.
 
-We provide `find()` for recursive listing:
+`Path` provides `find()` for recursive listing:
 
 ```swift
 for path in Path.home.find() {
@@ -269,48 +265,47 @@ get on with it and not have to worry.
 There is also some magic going on in Foundation’s filesystem APIs, which we look
 for and ensure our API is deterministic, eg. [this test].
 
-[this test]: https://github.com/mxcl/Path.swift/blob/master/Tests/PathTests/PathTests.swift#L539-L554
+[this test]: https://github.com/astzweig/swiftpm-pathkit/blob/master/Tests/PathTests/PathTests.swift#L539-L554
 
-# `Path.swift` is properly cross-platform
+# `PathKit` is properly cross-platform
 
-`FileManager` on Linux is full of holes. We have found the holes and worked
-round them where necessary.
+`FileManager` on Linux has a lot of pitfalls, which this library works around on.
 
 # Rules & Caveats
 
-Paths are just (normalized) string representations, there *might not* be a real
+`Paths` are just (normalized) string representations, there *might not* be a real
 file there.
 
 ```swift
-Path.home/"b"      // => /Users/mxcl/b
+Path.home/"b"      // => /Users/someuser/b
 
 // joining multiple strings works as you’d expect
-Path.home/"b"/"c"  // => /Users/mxcl/b/c
+Path.home/"b"/"c"  // => /Users/someuser/b/c
 
 // joining multiple parts simultaneously is fine
-Path.home/"b/c"    // => /Users/mxcl/b/c
+Path.home/"b/c"    // => /Users/someuser/b/c
 
 // joining with absolute paths omits prefixed slash
-Path.home/"/b"     // => /Users/mxcl/b
+Path.home/"/b"     // => /Users/someuser/b
 
 // joining with .. or . works as expected
-Path.home.foo.bar.join("..")  // => /Users/mxcl/foo
-Path.home.foo.bar.join(".")   // => /Users/mxcl/foo/bar
+Path.home.foo.bar.join("..")  // => /Users/someuser/foo
+Path.home.foo.bar.join(".")   // => /Users/someuser/foo/bar
 
 // though note that we provide `.parent`:
-Path.home.foo.bar.parent      // => /Users/mxcl/foo
+Path.home.foo.bar.parent      // => /Users/someuser/foo
 
 // of course, feel free to join variables:
 let b = "b"
 let c = "c"
-Path.home/b/c      // => /Users/mxcl/b/c
+Path.home/b/c      // => /Users/someuser/b/c
 
 // tilde is not special here
 Path.root/"~b"     // => /~b
 Path.root/"~/b"    // => /~/b
 
 // but is here
-Path("~/foo")!     // => /Users/mxcl/foo
+Path("~/foo")!     // => /Users/someuser/foo
 
 // this works provided the user `Guest` exists
 Path("~Guest")     // => /Users/Guest
@@ -332,15 +327,15 @@ try Path.root.foo.readlink()  // => /bar
                               // thus use `realpath` if there are multiple symlinks
 ```
 
-*Path.swift* has the general policy that if the desired end result preexists,
+*PathKit* has the general policy that if the desired end result preexists,
 then it’s a noop:
 
-* If you try to delete a file, but the file doesn't exist, we do nothing.
-* If you try to make a directory and it already exists, we do nothing.
+* If you try to delete a file, but the file doesn't exist, nothing happens.
+* If you try to make a directory and it already exists, nothing happens.
 * If you call `readlink` on a non-symlink, we return `self`
 
 However notably if you try to copy or move a file without specifying `overwrite`
-and the file already exists at the destination and is identical, we don’t check
+and the file already exists at the destination and is identical, *PathKit* doesn't check
 for that as the check was deemed too expensive to be worthwhile.
 
 ## Symbolic links
@@ -360,7 +355,7 @@ meant to be an abstraction for filesystems. To instead verify that there is
 no filesystem entry there at all check if `type` is `nil`.
 
 
-## We do not provide change directory functionality
+## There is no change directory functionality
 
 Changing directory is dangerous, you should *always* try to avoid it and thus
 we don’t even provide the method. If you are executing a sub-process then
@@ -406,25 +401,15 @@ SwiftPM:
 
 ```swift
 package.append(
-    .package(url: "https://github.com/mxcl/Path.swift.git", from: "1.0.0")
+    .package(url: "https://github.com/astzweig/swiftpm-pathkit.git", from: "1.0.0")
 )
 
 package.targets.append(
     .target(name: "Foo", dependencies: [
-        .product(name: "Path", package: "Path.swift")
+        .product(name: "Path", package: "swiftpm-pathkit")
     ])
 )
 ```
-
-CocoaPods:
-
-```ruby
-pod 'Path.swift', '~> 1.0.0'
-```
-
-Carthage:
-
-> Waiting on: [@Carthage#1945](https://github.com/Carthage/Carthage/pull/1945).
 
 # Naming Conflicts with `SwiftUI.Path`, etc.
 
@@ -441,11 +426,3 @@ We have a typealias of `PathStruct` you can use instead.
 [badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20iOS%20%7C%20tvOS%20%7C%20watchOS-lightgrey.svg
 [badge-languages]: https://img.shields.io/badge/swift-4.2%20%7C%205.x-orange.svg
 [docs]: https://mxcl.dev/Path.swift/Structs/Path.html
-[badge-jazzy]: https://raw.githubusercontent.com/mxcl/Path.swift/gh-pages/badge.svg?sanitize=true
-[badge-codecov]: https://codecov.io/gh/mxcl/Path.swift/branch/master/graph/badge.svg
-[badge-ci]: https://github.com/mxcl/Path.swift/workflows/Checks/badge.svg
-[travis]: https://travis-ci.com/mxcl/Path.swift
-[codecov]: https://codecov.io/gh/mxcl/Path.swift
-[badge-version]: https://img.shields.io/cocoapods/v/Path.swift.svg?label=version
-[cocoapods]: https://cocoapods.org/pods/Path.swift
-[Sponsor @mxcl]: https://github.com/sponsors/mxcl

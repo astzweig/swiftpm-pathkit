@@ -1,5 +1,5 @@
 import XCTest
-import Path
+import PathKit
 
 extension PathTests {
     func testFindMaxDepth1() throws {
@@ -148,7 +148,7 @@ extension PathTests {
                 Set(tmpdir.find().hidden(true)),
                 Set([dotFoo,tmpDotA,tmpDotAFoo,tmpB,tmpBFoo]),
                 relativeTo: tmpdir)
-            
+
             #if !os(Linux) || swift(>=5)
             XCTAssertEqual(
                 Set(tmpdir.find().hidden(false)),
@@ -157,7 +157,7 @@ extension PathTests {
             #endif
         }
     }
-    
+
     func testFindExtension() throws {
         try Path.mktemp { tmpdir in
             try tmpdir.join("foo.json").touch()

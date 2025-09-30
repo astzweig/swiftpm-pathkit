@@ -1,5 +1,5 @@
 import XCTest
-import Path
+import PathKit
 
 #if swift(>=5.3)
 func XCTAssertEqual<P: Pathish>(_ set1: Set<Path>, _ set2: Set<Path>, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line, relativeTo: P) {

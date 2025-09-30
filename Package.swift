@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "Path.swift",
+    name: "swiftpm-pathkit",
     products: [
-        .library(name: "Path", targets: ["Path"]),
+        .library(name: "PathKit", targets: ["PathKit"]),
     ],
     targets: [
-        .target(name: "Path", path: "Sources"),
-        .testTarget(name: "PathTests", dependencies: ["Path"]),
+        .target(name: "PathKit", path: "Sources"),
+        .testTarget(name: "PathTests", dependencies: ["PathKit"]),
     ],
     swiftLanguageVersions: [.v4, .v4_2, .version("5")]
 )

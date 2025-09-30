@@ -1,4 +1,4 @@
-@testable import Path
+@testable import PathKit
 import func XCTest.XCTAssertEqual
 import Foundation
 import XCTest
@@ -54,7 +54,7 @@ class PathTests: XCTestCase {
         XCTAssertEqual(["b.swift"], Set(lsrv.files.filter{ $0.extension == "swift" }.map{ $0.relative(to: tmpdir) }))
         XCTAssertEqual(["c"], Set(lsrv.files.filter{ $0.extension == "" }.map{ $0.relative(to: tmpdir) }))
         XCTAssertEqual(paths, ["a", "b.swift", "c", ".d"])
-        
+
     }
 
     func testEnumerationSkippingHiddenFiles() throws {
@@ -64,7 +64,7 @@ class PathTests: XCTestCase {
         try tmpdir.join("b").touch()
         try tmpdir.join("c").touch()
         try tmpdir.join(".d").mkdir().join("e").touch()
-        
+
         var paths = Set<String>()
         var dirs = 0
         for path in tmpdir.ls() {
@@ -688,7 +688,7 @@ class PathTests: XCTestCase {
             XCTAssertEqual(bar.type, .symlink)
         }
     }
-    
+
     func testOptionalInitializer() throws {
         XCTAssertNil(Path(""))
         XCTAssertNil(Path("./foo"))
