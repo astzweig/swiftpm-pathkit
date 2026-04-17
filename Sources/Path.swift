@@ -1,10 +1,13 @@
 import Foundation
-#if !os(Linux)
+#if canImport(Darwin)
 import func Darwin.realpath
 let _realpath = Darwin.realpath
-#else
+#elseif canImport(Glibc)
 import func Glibc.realpath
 let _realpath = Glibc.realpath
+#elseif canImport(Musl)
+import func Musl.realpath
+let _realpath = Musl.realpath
 #endif
 
 public typealias PathStruct = Path

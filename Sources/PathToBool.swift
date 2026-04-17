@@ -1,8 +1,10 @@
 import Foundation
-#if os(Linux)
-import func Glibc.access
-#else
+#if canImport(Darwin)
 import Darwin
+#elseif canImport(Glibc)
+import func Glibc.access
+#elseif canImport(Musl)
+import func Musl.access
 #endif
 
 public extension Pathish {
